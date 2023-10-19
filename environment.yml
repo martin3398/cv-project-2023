@@ -1,0 +1,19 @@
+name: cv-project
+channels:
+  - defaults
+dependencies:
+  - python=3.11.5
+  - numpy
+  - matplotlib
+  - jupyter
+  - scikit-learn
+  - opencv
+  - pip
+  - pip:
+    - ultralytics
+    # Dev Dependencies
+    - jupyter-black
+  # Dev Dependencies
+  - black
+  - isort
+prefix: /home/martin/.conda/envs/cv-project
