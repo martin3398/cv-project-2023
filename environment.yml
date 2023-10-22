@@ -11,6 +11,7 @@ dependencies:
   - pip
   - pip:
     - ultralytics
+    - roboflow
     # Dev Dependencies
     - jupyter-black
   # Dev Dependencies
