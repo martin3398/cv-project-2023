@@ -1,7 +1,14 @@
+# Pycharm
 .idea
 
+# PYthon/Jupyter
 __pycache__
-
 .ipynb_checkpoints
 
+# Training related
 data
+License-Plates-5
+runs
+
+# pretrained models
+yolov8n.pt
