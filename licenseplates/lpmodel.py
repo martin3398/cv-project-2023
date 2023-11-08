@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 import ultralytics
 
 
@@ -28,7 +29,22 @@ def detect_borders(bounding_box_data):
     cropped_img = bounding_box_data["cropped_img"]
     gray_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
-    _, mask = cv2.threshold(gray_image, 100, 255, cv2.THRESH_BINARY)
+    # TODO: Use Canny edge detection, set edges to 0
+    # TODO: maybe use 128 here?
+    _, binary_image = cv2.threshold(gray_image, np.mean(gray_image), 255, cv2.THRESH_BINARY)
+
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary_image, 8, cv2.CV_32S)
+
+    largest_area = 0
+    largest_label = 0
+    for label in range(1, num_labels):
+        area = stats[label, cv2.CC_STAT_AREA]
+        if area > largest_area:
+            largest_area = area
+            largest_label = label
+
+    mask = np.zeros_like(binary_image)
+    mask[labels == largest_label] = 255
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
