@@ -8,4 +8,5 @@ if __name__ == "__main__":
     model = lpmodel.load_model()
 
     test_image = cv2.imread(EXAMPLE_IMAGE_PATH)
-    lpmodel.predict(model, test_image)
+    text = lpmodel.predict_bounding_box(model, test_image)
+    print(text)
