@@ -2,9 +2,26 @@ import React from 'react';
 import './App.css';
 import {Col, Container, Navbar, Row, Button} from "react-bootstrap";
 import InputCard from "./components/InputCard";
+import useApiResult from "./components/useApiResult";
+import ResultCard from "./components/ResultCard";
 
 function App() {
-  const [image, setImage] = React.useState<string | null>(null);
+  const [
+    img,
+    setImage,
+    bbImage,
+    bbFetching,
+    fetchBb,
+    croppedImage,
+    croppedFetching,
+    fetchCropped,
+    homImage,
+    homFetching,
+    fetchHom,
+    text,
+    textFetching,
+    setTextFetching,
+  ] = useApiResult();
 
   const upload = (image: string) => {
     setImage(image)
@@ -28,13 +45,24 @@ function App() {
         </Navbar>
       </Row>
 
+      <Row>
+        <br/>
+        <br/>
+        <br/>
+      </Row>
+
       <Row className="card-container">
         <Col>
-          <InputCard image={image} setImage={upload}/>
+          <InputCard image={img} setImage={upload}/>
         </Col>
-        <Col>
-          abc
-        </Col>
+          <Col>
+            {bbImage &&
+              <ResultCard image={bbImage} title={"Bounding Box Image"}/>
+            }
+            {croppedImage &&
+              <ResultCard image={croppedImage} title={"Cropped Image"}/>
+            }
+          </Col>
       </Row>
 
       <Row>
@@ -52,19 +80,19 @@ function App() {
           </Navbar.Brand>
           <Row>
             <Col xs="auto">
-              <Button disabled={!image}>Find Bounding Box</Button>
+              <Button disabled={!img} onClick={() => fetchBb()}>Find Bounding Box</Button>
             </Col>
             <Col xs="auto">
-              <Button disabled={!image}>Crop Bounding Box</Button>
+              <Button disabled={!img} onClick={() => fetchCropped()}>Crop Bounding Box</Button>
             </Col>
             <Col xs="auto">
-              <Button disabled={!image}>Transform Homography</Button>
+              <Button disabled={!img}>Transform Homography</Button>
             </Col>
             <Col xs="auto">
-              <Button disabled={!image}>OCR Detection</Button>
+              <Button disabled={!img}>OCR Detection</Button>
             </Col>
             <Col xs="auto">
-              <Button disabled={!image}>All</Button>
+              <Button disabled={!img}>All</Button>
             </Col>
           </Row>
         </Navbar>

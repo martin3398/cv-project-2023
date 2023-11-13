@@ -14,11 +14,16 @@ services:
       - NODE_ENV=development
 
   backend:
-    image: tiangolo/uvicorn-gunicorn-fastapi:python3.8
+    # TODO: create image
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
     container_name: backend
     working_dir: /usr/src/app
     volumes:
-      - ./licenseplates:/usr/src/app
+      - ./licenseplates:/usr/src/app/licenseplates
+      - ./api.py:/usr/src/app/api.py
+      - ./requirements.txt:/usr/src/app/requirements.txt
+      - ./finetuned-model.pt:/usr/src/app/finetuned-model.pt
+    command: sh -c "apt-get update && apt-get install -y python3-opencv && pip install -r requirements.txt && uvicorn api:app --host 0.0.0.0 --port 8000 --reload"
     ports:
       - "8000:8000"
     environment:

@@ -3,7 +3,7 @@
 ## Setup Conda Environment
 
 ```bash
-conda create -f environment.yml
+conda create -f dev-environment.yml
 ```
 
 ## Download Data

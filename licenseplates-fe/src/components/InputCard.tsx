@@ -13,7 +13,7 @@ const InputCard = ({image, setImage} : Props) => {
     const target = event.target;
     if (target && target.files && target.files.length > 0) {
       const fileUploaded = URL.createObjectURL(target.files[0])
-      console.log(fileUploaded)
+
       setImage(fileUploaded)
     }
   }
@@ -22,13 +22,11 @@ const InputCard = ({image, setImage} : Props) => {
     hiddenFileInput.current?.click();
   }
 
-  console.log(image)
-
   return (
     <Card bg="secondary" text="white" style={{ width: '100%' }}>
       <Card.Body>
         <Card.Text className="card-title">
-            text
+            Input Image
         </Card.Text>
       </Card.Body>
 

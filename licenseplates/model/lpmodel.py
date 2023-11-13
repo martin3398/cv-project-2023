@@ -3,13 +3,20 @@ import numpy as np
 import ultralytics
 
 
+model = None
+def get_model():
+    global model
+    if model is None:
+        model = load_model()
+    return model
+
 def load_model():
     model = ultralytics.YOLO("finetuned-model.pt")
 
     return model
 
 
-def predict_bounding_box(model, image):
+def predict_bounding_box(image, model=get_model()):
     results = model(image)[0]
 
     lp_boxes = [box_data for box_data in results.boxes.data.tolist() if box_data[5] == 0]
@@ -23,6 +30,12 @@ def predict_bounding_box(model, image):
         "cropped_img": image[int(best_box[1]) : int(best_box[3]), int(best_box[0]) : int(best_box[2])],
         "confidence": best_box[4],
     }
+
+def add_bounding_box(image, bounding_box_data):
+    x1, y1, x2, y2 = bounding_box_data["bb"]
+    cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 1)
+
+    return image
 
 
 def detect_borders(bounding_box_data):
