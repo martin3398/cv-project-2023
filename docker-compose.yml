@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  frontend:
+    image: node:latest
+    container_name: frontend
+    working_dir: /usr/src/app
+    volumes:
+      - ./licenseplates-fe:/usr/src/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm start"
+    environment:
+      - NODE_ENV=development
+
+  backend:
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.8
+    container_name: backend
+    working_dir: /usr/src/app
+    volumes:
+      - ./licenseplates:/usr/src/app
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
