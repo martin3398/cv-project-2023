@@ -1,5 +1,7 @@
 # Pycharm
 .idea
+.venv
+.venv/
 
 # PYthon/Jupyter
 __pycache__
