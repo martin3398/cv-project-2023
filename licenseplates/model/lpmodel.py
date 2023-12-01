@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import ultralytics
-
+import pytesseract
 
 model = None
 def get_model():
@@ -64,18 +64,32 @@ def detect_borders(bounding_box_data):
     contour = max(contours, key=cv2.contourArea)
 
     rect = cv2.minAreaRect(contour)
-
     box = cv2.boxPoints(rect).astype(int)
 
-    return box
+    return box, rect
 
 
-def transform_license_plate(image, borders):
-    pass
+def transform_license_plate(image, rectangle):
+    width, height = rectangle[1][0], rectangle[1][1]
+    angle = rectangle[-1]
+
+    if width < height:
+        angle -= 90
+    else:
+        # @TODO: check for correctness
+        angle += 0
+    
+    rotation_matrix = cv2.getRotationMatrix2D(rectangle[0], angle, 1.0)
+    rotated_image = cv2.warpAffine(image, rotation_matrix, (image.shape[1], image.shape[0]))
+
+    return rotated_image
 
 
 def read_license_plate(image):
-    pass
+    # @TODO: image preprocessing
+    text = pytesseract.image_to_string(image)
+
+    return text
 
 
 def get_license_text(image):
