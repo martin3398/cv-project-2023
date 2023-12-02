@@ -27,7 +27,7 @@ if __name__ == "__main__":
         plt.imshow(border_image)
         plt.show()
 
-        transformed_image = lpmodel.transform_license_plate(image=border_image, rectangle=border_rect)
+        transformed_image = lpmodel.transform_license_plate(image=bounding_box_data["cropped_img"], rectangle=border_rect, corners=border_edges)
         plt.imshow(transformed_image)
         plt.show()
 

@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import ultralytics
 import pytesseract
+from matplotlib import pyplot as plt
 
 model = None
 def get_model():
@@ -65,30 +66,93 @@ def detect_borders(bounding_box_data):
 
     rect = cv2.minAreaRect(contour)
     box = cv2.boxPoints(rect).astype(int)
-
     return box, rect
 
 
-def transform_license_plate(image, rectangle):
+def transform_license_plate(image, rectangle, corners):
     width, height = rectangle[1][0], rectangle[1][1]
     angle = rectangle[-1]
 
     if width < height:
         angle -= 90
-    else:
-        # @TODO: check for correctness
-        angle += 0
     
     rotation_matrix = cv2.getRotationMatrix2D(rectangle[0], angle, 1.0)
     rotated_image = cv2.warpAffine(image, rotation_matrix, (image.shape[1], image.shape[0]))
+    
+    corners_3D = np.hstack((corners, np.ones((4,1))))
+    transformed_corners = (rotation_matrix @ corners_3D.T).T
 
-    return rotated_image
+    x_min, x_max = np.min(transformed_corners[:,0]), np.max(transformed_corners[:,0])
+    y_min, y_max = np.min(transformed_corners[:,1]), np.max(transformed_corners[:,1])
+    x_min, x_max, y_min, y_max = map(int, [x_min, x_max, y_min, y_max])
+
+    cropped_img = rotated_image[y_min:y_max,x_min:x_max]
+
+    return cropped_img
+
+
+def extract_license_plate(image):
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    # Define lower and upper thresholds for white color in HSV
+    lower_white = np.array([0, 0, 200], dtype=np.uint8)
+    upper_white = np.array([180, 30, 255], dtype=np.uint8)
+
+    # Threshold the image to get only white regions
+    white_mask = cv2.inRange(hsv_image, lower_white, upper_white)
+
+    # Find contours in the white mask
+    contours, _ = cv2.findContours(white_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Get the bounding box of the largest contour (assuming the license plate is the largest white region)
+    if contours:
+        largest_contour = max(contours, key=cv2.contourArea)
+        x, y, w, h = cv2.boundingRect(largest_contour)
+
+        # Extract the license plate region from the original image
+        license_plate = image[y:y+h, x:x+w]
+
+        # Display the original image and extracted license plate
+        cv2.imshow('Original Image', image)
+        cv2.imshow('Extracted License Plate', license_plate)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 def read_license_plate(image):
     # @TODO: image preprocessing
-    text = pytesseract.image_to_string(image)
+    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # blur = cv2.GaussianBlur(gray, (3,3), 0)
+    # thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+    # invert = 255 - thresh
 
+    upscaled_image = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+    gray = cv2.cvtColor(upscaled_image, cv2.COLOR_BGR2GRAY)
+    denoised_image = cv2.GaussianBlur(gray, (5, 5), 0)
+    enhanced_image = cv2.equalizeHist(denoised_image)
+    _, thresholded_image = cv2.threshold(enhanced_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # Display images using Matplotlib without colormap
+    plt.imshow(upscaled_image, cmap='gray')
+    plt.title('Upscaled Image')
+    plt.show()
+    plt.imshow(gray, cmap='gray')
+    plt.title('Grayscale Image')
+    plt.show()
+    plt.imshow(denoised_image, cmap='gray')
+    plt.title('Denoised Image')
+    plt.show()
+    plt.imshow(enhanced_image, cmap='gray')
+    plt.title('Enhanced Contrast Image')
+    plt.show()
+    plt.imshow(thresholded_image, cmap='gray')
+    plt.title('Thresholded Image')
+    plt.show()
+
+    # extract_license_plate(thresholded_image)
+
+    text = pytesseract.image_to_string(thresholded_image)
+    print("OCR Result:", text)
     return text
 
 
