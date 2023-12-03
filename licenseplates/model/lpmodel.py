@@ -94,52 +94,13 @@ def transform_license_plate(image, rectangle, corners):
     return cropped_img
 
 
-def extract_license_plate(image):
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
-    # Define lower and upper thresholds for white color in HSV
-    lower_white = np.array([0, 0, 200], dtype=np.uint8)
-    upper_white = np.array([180, 30, 255], dtype=np.uint8)
-
-    # Threshold the image to get only white regions
-    white_mask = cv2.inRange(hsv_image, lower_white, upper_white)
-
-    # Find contours in the white mask
-    contours, _ = cv2.findContours(white_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    # Get the bounding box of the largest contour (assuming the license plate is the largest white region)
-    if contours:
-        print("contours")
-        largest_contour = max(contours, key=cv2.contourArea)
-        x, y, w, h = cv2.boundingRect(largest_contour)
-
-        # Extract the license plate region from the original image
-        license_plate = image[y:y+h, x:x+w]
-
-        # Display the original image and extracted license plate
-        cv2.imshow('Original Image', image)
-        cv2.imshow('Extracted License Plate', license_plate)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-    else:
-        print("no contours")
-
-
 def read_license_plate(image):
-    # @TODO: image preprocessing
-    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # blur = cv2.GaussianBlur(gray, (3,3), 0)
-    # thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-    # invert = 255 - thresh
-
-    # extract_license_plate(image)
-
     upscaled_image = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
     gray = cv2.cvtColor(upscaled_image, cv2.COLOR_BGR2GRAY)
-    denoised_image = cv2.GaussianBlur(gray, (5, 5), 0)
+    denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
     enhanced_image = cv2.equalizeHist(denoised_image)
     _, thresholded_image = cv2.threshold(enhanced_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
+    
     # Display images using Matplotlib without colormap
     plt.imshow(upscaled_image, cmap='gray')
     plt.title('Upscaled Image')
@@ -157,7 +118,7 @@ def read_license_plate(image):
     plt.title('Thresholded Image')
     plt.show()
 
-    text = pytesseract.image_to_string(thresholded_image)
+    text = pytesseract.image_to_string(thresholded_image, lang='eng')
     return text
 
 
