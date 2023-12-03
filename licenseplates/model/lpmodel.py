@@ -85,7 +85,10 @@ def transform_license_plate(image, rectangle, corners):
     x_min, x_max = np.min(transformed_corners[:,0]), np.max(transformed_corners[:,0])
     y_min, y_max = np.min(transformed_corners[:,1]), np.max(transformed_corners[:,1])
     x_min, x_max, y_min, y_max = map(int, [x_min, x_max, y_min, y_max])
-
+    
+    x_min, x_max = max(0, x_min), min(rotated_image.shape[1], x_max)
+    y_min, y_max = max(0, y_min), min(rotated_image.shape[0], y_max)
+    
     cropped_img = rotated_image[y_min:y_max,x_min:x_max]
 
     return cropped_img
@@ -106,6 +109,7 @@ def extract_license_plate(image):
 
     # Get the bounding box of the largest contour (assuming the license plate is the largest white region)
     if contours:
+        print("contours")
         largest_contour = max(contours, key=cv2.contourArea)
         x, y, w, h = cv2.boundingRect(largest_contour)
 
@@ -117,6 +121,8 @@ def extract_license_plate(image):
         cv2.imshow('Extracted License Plate', license_plate)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+    else:
+        print("no contours")
 
 
 def read_license_plate(image):
@@ -125,6 +131,8 @@ def read_license_plate(image):
     # blur = cv2.GaussianBlur(gray, (3,3), 0)
     # thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
     # invert = 255 - thresh
+
+    # extract_license_plate(image)
 
     upscaled_image = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
     gray = cv2.cvtColor(upscaled_image, cv2.COLOR_BGR2GRAY)
@@ -149,10 +157,7 @@ def read_license_plate(image):
     plt.title('Thresholded Image')
     plt.show()
 
-    # extract_license_plate(thresholded_image)
-
     text = pytesseract.image_to_string(thresholded_image)
-    print("OCR Result:", text)
     return text
 
 
