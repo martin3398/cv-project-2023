@@ -74,10 +74,7 @@ def transform_license_plate(image, rectangle, corners):
     angle = rectangle[-1]
 
     if width < height:
-        print("1")
         angle -= 90
-    else:
-        print("0")
     
     rotation_matrix = cv2.getRotationMatrix2D(rectangle[0], angle, 1.0)
     rotated_image = cv2.warpAffine(image, rotation_matrix, (image.shape[1], image.shape[0]))

@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 from licenseplates.model import lpmodel
 
 EXAMPLE_IMAGE_PATH = "License-Plates-5/test/images"
-RESULT_IMAGE_PATH = "results"
 
 def plot_images(images, titles):
     num_images = len(images)
