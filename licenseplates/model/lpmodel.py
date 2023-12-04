@@ -74,7 +74,10 @@ def transform_license_plate(image, rectangle, corners):
     angle = rectangle[-1]
 
     if width < height:
+        print("1")
         angle -= 90
+    else:
+        print("0")
     
     rotation_matrix = cv2.getRotationMatrix2D(rectangle[0], angle, 1.0)
     rotated_image = cv2.warpAffine(image, rotation_matrix, (image.shape[1], image.shape[0]))
@@ -99,27 +102,37 @@ def read_license_plate(image):
     gray = cv2.cvtColor(upscaled_image, cv2.COLOR_BGR2GRAY)
     denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
     enhanced_image = cv2.equalizeHist(denoised_image)
-    _, thresholded_image = cv2.threshold(enhanced_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    
-    # Display images using Matplotlib without colormap
-    plt.imshow(upscaled_image, cmap='gray')
-    plt.title('Upscaled Image')
-    plt.show()
-    plt.imshow(gray, cmap='gray')
-    plt.title('Grayscale Image')
-    plt.show()
-    plt.imshow(denoised_image, cmap='gray')
-    plt.title('Denoised Image')
-    plt.show()
-    plt.imshow(enhanced_image, cmap='gray')
-    plt.title('Enhanced Contrast Image')
-    plt.show()
-    plt.imshow(thresholded_image, cmap='gray')
-    plt.title('Thresholded Image')
-    plt.show()
+    _, otsu_thresholding = cv2.threshold(enhanced_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    adaptive_thresholding = cv2.adaptiveThreshold(denoised_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 4)
 
-    text = pytesseract.image_to_string(thresholded_image, lang='eng')
+    images_to_plot = [upscaled_image, gray, denoised_image, enhanced_image, adaptive_thresholding, adaptive_thresholding]
+    titles = ['Upscaled Image', 'Grayscale Image', 'Denoised Image', 'Enhanced Contrast Image', 'Otsu Thresholded Image', 'Adaptive Thresholded Image']
+    plot_images(images_to_plot, titles)
+
+    text = pytesseract.image_to_string(adaptive_thresholding, lang='eng')
     return text
+
+
+def plot_images(images, titles):
+    num_images = len(images)
+
+    # Create a subplot grid based on the number of images
+    rows = 2  # You can adjust the number of rows and columns based on your preference
+    cols = (num_images + 1) // rows
+
+    fig, axes = plt.subplots(rows, cols, figsize=(12, 8))
+
+    # Flatten the axes if there is only one row
+    if rows == 1:
+        axes = axes.reshape(1, -1)
+
+    for i in range(num_images):
+        axes[i // cols, i % cols].imshow(images[i], cmap='gray')
+        axes[i // cols, i % cols].set_title(titles[i])
+        axes[i // cols, i % cols].axis('off')
+
+    plt.tight_layout()
+    plt.show()
 
 
 def get_license_text(image):
