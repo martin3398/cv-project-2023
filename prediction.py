@@ -7,12 +7,34 @@ from matplotlib import pyplot as plt
 from licenseplates.model import lpmodel
 
 EXAMPLE_IMAGE_PATH = "License-Plates-5/test/images"
+RESULT_IMAGE_PATH = "results"
+
+def plot_images(images, titles):
+    num_images = len(images)
+
+    # Create a subplot grid based on the number of images
+    rows = 2  # You can adjust the number of rows and columns based on your preference
+    cols = (num_images + 1) // rows
+
+    fig, axes = plt.subplots(rows, cols, figsize=(12, 8))
+
+    # Flatten the axes if there is only one row
+    if rows == 1:
+        axes = axes.reshape(1, -1)
+
+    for i in range(num_images):
+        axes[i // cols, i % cols].imshow(images[i], cmap='gray')
+        axes[i // cols, i % cols].set_title(titles[i])
+        axes[i // cols, i % cols].axis('off')
+
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     test_img_paths = glob.glob(os.path.join(EXAMPLE_IMAGE_PATH, "*.jpg"))
 
-    for idx, img_path in enumerate(test_img_paths[1:50]):
-        print("current index: ", idx)
+    for idx, img_path in enumerate(test_img_paths[4:50]):
+        print("current img index: ", idx)
         test_image = cv2.imread(img_path)
 
         bounding_box_data = lpmodel.predict_bounding_box(image=test_image, model=lpmodel.load_model())
@@ -32,5 +54,8 @@ if __name__ == "__main__":
         # plt.imshow(transformed_image)
         # plt.show()
 
-        lp_text = lpmodel.read_license_plate(image=transformed_image)
+        lp_text, images, titles = lpmodel.read_license_plate(image=transformed_image)
         print(lp_text)
+
+        plot_images(images, titles)
+        save_images(images, titles)

@@ -100,39 +100,15 @@ def transform_license_plate(image, rectangle, corners):
 def read_license_plate(image):
     upscaled_image = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
     gray = cv2.cvtColor(upscaled_image, cv2.COLOR_BGR2GRAY)
-    denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
-    enhanced_image = cv2.equalizeHist(denoised_image)
-    _, otsu_thresholding = cv2.threshold(enhanced_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    denoised_image = cv2.GaussianBlur(gray, (7, 7), 0)
+    _, otsu_thresholding = cv2.threshold(denoised_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     adaptive_thresholding = cv2.adaptiveThreshold(denoised_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 4)
 
-    images_to_plot = [upscaled_image, gray, denoised_image, enhanced_image, adaptive_thresholding, adaptive_thresholding]
-    titles = ['Upscaled Image', 'Grayscale Image', 'Denoised Image', 'Enhanced Contrast Image', 'Otsu Thresholded Image', 'Adaptive Thresholded Image']
-    plot_images(images_to_plot, titles)
+    images_to_plot = [upscaled_image, gray, denoised_image, otsu_thresholding, adaptive_thresholding]
+    titles = ['Upscaled Image', 'Grayscale Image', 'Denoised Image', 'Otsu Thresholded Image', 'Adaptive Thresholded Image']
 
     text = pytesseract.image_to_string(adaptive_thresholding, lang='eng')
-    return text
-
-
-def plot_images(images, titles):
-    num_images = len(images)
-
-    # Create a subplot grid based on the number of images
-    rows = 2  # You can adjust the number of rows and columns based on your preference
-    cols = (num_images + 1) // rows
-
-    fig, axes = plt.subplots(rows, cols, figsize=(12, 8))
-
-    # Flatten the axes if there is only one row
-    if rows == 1:
-        axes = axes.reshape(1, -1)
-
-    for i in range(num_images):
-        axes[i // cols, i % cols].imshow(images[i], cmap='gray')
-        axes[i // cols, i % cols].set_title(titles[i])
-        axes[i // cols, i % cols].axis('off')
-
-    plt.tight_layout()
-    plt.show()
+    return text, images_to_plot, titles
 
 
 def get_license_text(image):
