@@ -57,4 +57,3 @@ if __name__ == "__main__":
         print(lp_text)
 
         plot_images(images, titles)
-        save_images(images, titles)

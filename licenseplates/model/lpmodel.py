@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
+
 import ultralytics
 import pytesseract
-from matplotlib import pyplot as plt
+import easyocr
 
 model = None
 def get_model():
@@ -104,8 +105,11 @@ def read_license_plate(image):
     images_to_plot = [upscaled_image, gray, denoised_image, otsu_thresholding, adaptive_thresholding]
     titles = ['Upscaled Image', 'Grayscale Image', 'Denoised Image', 'Otsu Thresholded Image', 'Adaptive Thresholded Image']
 
-    text = pytesseract.image_to_string(adaptive_thresholding, lang='eng')
-    return text, images_to_plot, titles
+    # result = pytesseract.image_to_string(adaptive_thresholding, lang='eng')#
+    reader = easyocr.Reader(['en'])
+    result = reader.readtext(adaptive_thresholding)
+
+    return result, images_to_plot, titles
 
 
 def get_license_text(image):
