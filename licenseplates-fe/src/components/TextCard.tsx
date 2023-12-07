@@ -1,5 +1,5 @@
 const TextCard = () => {
-  return (<div></div>)
-}
+  return <div></div>;
+};
 
 export default TextCard;
