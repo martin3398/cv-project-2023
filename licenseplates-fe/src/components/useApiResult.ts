@@ -1,94 +1,91 @@
-import {useState} from "react";
+import { useState } from 'react';
 
 const useApiResult = () => {
   const [img, setImg] = useState<string | null>(null);
   const [bbImage, setBbImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
-  const [homImage, setHomImage] = useState<string | null>(null);
+  const [transformedImage, setTransformedImage] = useState<string | null>(null);
   const [text, setText] = useState<string | null>(null);
 
   const [bbFetching, setBbFetching] = useState<boolean>(false);
   const [croppedFetching, setCroppedFetching] = useState<boolean>(false);
-  const [homFetching, setHomFetching] = useState<boolean>(false);
+  const [transformedFetching, setTransformedFetching] = useState<boolean>(false);
   const [textFetching, setTextFetching] = useState<boolean>(false);
 
   const setImage = (image: string) => {
-    setImg(image)
-    setBbImage(null)
-    setHomImage(null)
-    setText(null)
-  }
+    setImg(image);
+    setBbImage(null);
+    setTransformedImage(null);
+    setText(null);
+  };
 
   const fetchImg = async (url: string) => {
     if (!img) {
-      return
+      return;
     }
     const imgResponse = await fetch(img);
-    const blob = await imgResponse.blob()
+    const blob = await imgResponse.blob();
     const formData = new FormData();
-    formData.append("file", blob, "a.jpg");
+    formData.append('file', blob, 'a.jpg');
 
     return fetch(url, {
-        method: 'POST',
-        headers: {
-          'mode': 'no-cors',
-        },
-        body: formData,
-    })
-  }
+      method: 'POST',
+      headers: {
+        mode: 'no-cors',
+      },
+      body: formData,
+    });
+  };
 
   const fetchBb = async () => {
-    setBbFetching(true)
+    setBbFetching(true);
 
-    const img = await fetchImg('http://localhost:8000/api/plot-bounding-box')
-    const blob = await img?.blob()
+    const img = await fetchImg('http://localhost:8000/api/plot-bounding-box');
+    const blob = await img?.blob();
     if (blob) {
-      const url = URL.createObjectURL(blob)
-      setBbImage(url ?? null)
+      const url = URL.createObjectURL(blob);
+      setBbImage(url ?? null);
     }
 
-    setBbFetching(false)
-  }
+    setBbFetching(false);
+  };
 
   const fetchCropped = async () => {
-    setCroppedFetching(true)
+    setCroppedFetching(true);
 
-    const img = await fetchImg('http://localhost:8000/api/crop-bounding-box')
+    const img = await fetchImg('http://localhost:8000/api/crop-bounding-box');
 
-    const blob = await img?.blob()
+    const blob = await img?.blob();
     if (blob) {
-      const url = URL.createObjectURL(blob)
-      setCroppedImage(url ?? null)
+      const url = URL.createObjectURL(blob);
+      setCroppedImage(url ?? null);
     }
 
-    setCroppedFetching(false)
-  }
+    setCroppedFetching(false);
+  };
 
-  const fetchHom= async () => {
-    setHomFetching(true)
+  const fetchTransformed = async () => {
+    setTransformedFetching(true);
 
-    const img = await fetchImg('http://localhost:8000/api/transform')
-    const blob = await img?.blob()
+    const img = await fetchImg('http://localhost:8000/api/transform');
+    const blob = await img?.blob();
     if (blob) {
-      const url = URL.createObjectURL(blob)
-      setHomImage(url ?? null)
+      const url = URL.createObjectURL(blob);
+      setTransformedImage(url ?? null);
     }
 
-    setHomFetching(false)
-  }
+    setTransformedFetching(false);
+  };
 
   const fetchText = async () => {
-    setTextFetching(true)
+    setTextFetching(true);
 
-    const img = await fetchImg('http://localhost:8000/api/read-text')
-    const blob = await img?.blob()
-    if (blob) {
-      const url = URL.createObjectURL(blob)
-      setText(url ?? null)
-    }
+    const img = await fetchImg('http://localhost:8000/api/read-text');
+    const json: { text: string } = await img?.json();
+    setText(json.text);
 
-    setTextFetching(false)
-  }
+    setTextFetching(false);
+  };
 
   return [
     img,
@@ -99,13 +96,13 @@ const useApiResult = () => {
     croppedImage,
     croppedFetching,
     fetchCropped,
-    homImage,
-    homFetching,
-    fetchHom,
+    transformedImage,
+    transformedFetching,
+    fetchTransformed,
     text,
     textFetching,
-    setTextFetching,
-  ] as const
-}
+    fetchText,
+  ] as const;
+};
 
 export default useApiResult;
