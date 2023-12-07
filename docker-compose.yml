@@ -5,6 +5,7 @@ services:
     image: node:latest
     container_name: frontend
     working_dir: /usr/src/app
+    user: "1000"
     volumes:
       - ./licenseplates-fe:/usr/src/app
     ports:
