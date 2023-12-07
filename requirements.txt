@@ -2,3 +2,9 @@ numpy
 pillow
 opencv-python
 ultralytics
+pytesseract
+easyocr
+
+# Dev Requirements
+isort
+black

@@ -1,14 +1,18 @@
 import cv2
+import easyocr
 import numpy as np
+import pytesseract
 import ultralytics
 
-
 model = None
+
+
 def get_model():
     global model
     if model is None:
         model = load_model()
     return model
+
 
 def load_model():
     model = ultralytics.YOLO("finetuned-model.pt")
@@ -30,6 +34,7 @@ def predict_bounding_box(image, model=get_model()):
         "cropped_img": image[int(best_box[1]) : int(best_box[3]), int(best_box[0]) : int(best_box[2])],
         "confidence": best_box[4],
     }
+
 
 def add_bounding_box(image, bounding_box_data):
     x1, y1, x2, y2 = bounding_box_data["bb"]
@@ -64,18 +69,58 @@ def detect_borders(bounding_box_data):
     contour = max(contours, key=cv2.contourArea)
 
     rect = cv2.minAreaRect(contour)
-
     box = cv2.boxPoints(rect).astype(int)
+    return box, rect
 
-    return box
 
+def transform_license_plate(image, rectangle, corners):
+    width, height = rectangle[1][0], rectangle[1][1]
+    angle = rectangle[-1]
 
-def transform_license_plate(image, borders):
-    pass
+    if width < height:
+        angle -= 90
+
+    rotation_matrix = cv2.getRotationMatrix2D(rectangle[0], angle, 1.0)
+    rotated_image = cv2.warpAffine(image, rotation_matrix, (image.shape[1], image.shape[0]))
+
+    corners_3D = np.hstack((corners, np.ones((4, 1))))
+    transformed_corners = (rotation_matrix @ corners_3D.T).T
+
+    x_min, x_max = np.min(transformed_corners[:, 0]), np.max(transformed_corners[:, 0])
+    y_min, y_max = np.min(transformed_corners[:, 1]), np.max(transformed_corners[:, 1])
+    x_min, x_max, y_min, y_max = map(int, [x_min, x_max, y_min, y_max])
+
+    x_min, x_max = max(0, x_min), min(rotated_image.shape[1], x_max)
+    y_min, y_max = max(0, y_min), min(rotated_image.shape[0], y_max)
+
+    cropped_img = rotated_image[y_min:y_max, x_min:x_max]
+
+    return cropped_img
 
 
 def read_license_plate(image):
-    pass
+    upscaled_image = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+    gray = cv2.cvtColor(upscaled_image, cv2.COLOR_BGR2GRAY)
+    denoised_image = cv2.GaussianBlur(gray, (3, 3), 0)
+    _, otsu_thresholding = cv2.threshold(denoised_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    adaptive_thresholding = cv2.adaptiveThreshold(
+        denoised_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 27, 9
+    )
+
+    images_to_plot = [upscaled_image, gray, denoised_image, otsu_thresholding, adaptive_thresholding]
+    titles = [
+        "Upscaled Image",
+        "Grayscale Image",
+        "Denoised Image",
+        "Otsu Thresholded Image",
+        "Adaptive Thresholded Image",
+    ]
+
+    # result = pytesseract.image_to_string(adaptive_thresholding, lang='eng')
+    reader = easyocr.Reader(["en"], gpu=True)
+    result = reader.readtext(adaptive_thresholding)
+
+    return result, images_to_plot, titles
 
 
 def get_license_text(image):

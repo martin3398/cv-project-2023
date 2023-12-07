@@ -2,14 +2,14 @@ import io
 
 import cv2
 import numpy as np
-from PIL import Image
 from fastapi import APIRouter, File, UploadFile
-
+from PIL import Image
 from starlette.responses import StreamingResponse
 
 from licenseplates.model import lpmodel
 
 router = APIRouter()
+
 
 @router.get("/ping")
 def ping():
@@ -35,6 +35,7 @@ async def crop_bounding_box(file: UploadFile = File(...)):
 
     res, im_png = cv2.imencode(".png", img)
     return StreamingResponse(io.BytesIO(im_png.tobytes()), media_type="image/png")
+
 
 @router.post("/transform-hom")
 async def transform_hom(file: UploadFile = File(...)):
