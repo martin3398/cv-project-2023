@@ -11,8 +11,6 @@ RESULT_IMAGE_PATH = "License-Plates-5/output"
 SAVE_INFO = False
 PLOT_GRAPHS = True
 
-# TODO: maybe cleanup this script
-
 
 def plot_images(images, titles):
     num_images = len(images)
@@ -63,7 +61,7 @@ if __name__ == "__main__":
     images = []
     titles = []
 
-    lower_bound = 36
+    lower_bound = 32
     upper_bound = lower_bound + 1
     for idx, img_path in enumerate(test_img_paths[lower_bound:upper_bound]):
         print("Index of current image: ", lower_bound + idx)
@@ -92,15 +90,16 @@ if __name__ == "__main__":
         titles.append("Transformed Image")
 
         # Read license plate
-        lp_result, add_images, add_titles = ocr.read_license_plate(image=transformed_image)
-        print(lp_result[0][1])
+        preprocessed_images = ocr.get_preprocessed_image_steps(transformed_image)
+        ocr_text = ocr.get_text(preprocessed_images[-1])
+        print(ocr_text)
 
-        images = images + add_images
-        titles = titles + add_titles
+        images = images + preprocessed_images
+        titles = titles + ocr.PROCESSING_STEPS_TITLES
 
         if PLOT_GRAPHS is True:
             plot_images(images, titles)
 
         if SAVE_INFO is True:
             save_images(lower_bound + idx, images, titles)
-            save_lp_text(lower_bound + idx, lp_result[0][1])
+            save_lp_text(lower_bound + idx, ocr_text)

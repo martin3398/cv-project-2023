@@ -26,6 +26,6 @@ def predict_bounding_box(image, model=get_model()):
 
     return {
         "bb": best_box[:4],
-        "cropped_img": image[int(best_box[1]): int(best_box[3]), int(best_box[0]): int(best_box[2])],
+        "cropped_img": image[int(best_box[1]) : int(best_box[3]), int(best_box[0]) : int(best_box[2])],
         "confidence": best_box[4],
     }

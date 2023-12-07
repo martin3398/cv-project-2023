@@ -1,12 +1,12 @@
 import cv2
 import numpy as np
 
+# TODO: refactor
+
 
 def detect_borders(cropped_img):
     gray_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
-    # TODO: Use Canny edge detection, set edges to 0
-    # TODO: maybe use 128 here?
     _, binary_image = cv2.threshold(gray_image, np.mean(gray_image), 255, cv2.THRESH_BINARY)
 
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary_image, 8, cv2.CV_32S)

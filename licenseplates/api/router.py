@@ -53,10 +53,17 @@ async def transform(file: UploadFile = File(...)):
     return stream_result_img(img)
 
 
+@router.post("/preprocessing-steps")
+async def preprocessing_steps(file: UploadFile = File(...)):
+    img = load_image(file)
+    img = lpmodel.get_preprocessed_image_steps(img)
+
+    return stream_result_img(np.array(img))
+
+
 @router.post("/read-text")
 async def read_text(file: UploadFile = File(...)):
     img = load_image(file)
     text = lpmodel.get_license_text(img)
 
-    print(text)
     return {"text": text}

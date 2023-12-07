@@ -1,4 +1,8 @@
+import io
+
 import cv2
+from matplotlib import pyplot as plt
+from PIL import Image
 
 from licenseplates.model import boundingbox, ocr, transformation
 
@@ -30,8 +34,43 @@ def get_transformed_img(img):
     return transformation.transform_license_plate(cropped_img, border_rect, border_edges)
 
 
-def get_license_text(img):
-    license_plate_img = get_transformed_img(img)
-    (content, _, _) = ocr.read_license_plate(license_plate_img)
+def get_preprocessed_image_steps(img):
+    transformed_img = get_transformed_img(img)
+    (upscaled_image, _, denoised_image, otsu_thresholded, adaptive_thresholded) = ocr.get_preprocessed_image_steps(
+        transformed_img
+    )
 
-    return content[0][1]
+    fig, axes = plt.subplots(2, 2, figsize=(12, 6))
+    fig.set_facecolor("lightgray")
+
+    axes = axes.flatten()
+    for i, (img, title) in enumerate(
+        [
+            (upscaled_image, "Upscaled Image"),
+            (denoised_image, "Denoised Image"),
+            (otsu_thresholded, "Otsu Thresholded Image"),
+            (adaptive_thresholded, "Adaptive Thresholded Image"),
+        ]
+    ):
+        axes[i].imshow(img, cmap="gray")
+        axes[i].set_title(title, fontsize=24)
+        axes[i].axis("off")
+
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    fig.savefig(buf)
+    buf.seek(0)
+
+    return Image.open(buf)
+
+
+def get_preprocessed_image(img):
+    transformed_img = get_transformed_img(img)
+    return ocr.get_preprocessed_image(transformed_img)
+
+
+def get_license_text(img):
+    preprocessed_img = get_preprocessed_image(img)
+
+    return ocr.get_text(preprocessed_img)
