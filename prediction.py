@@ -11,6 +11,7 @@ RESULT_IMAGE_PATH = "License-Plates-5/output"
 SAVE_INFO = False
 PLOT_GRAPHS = True
 
+
 def plot_images(images, titles):
     num_images = len(images)
 
@@ -25,9 +26,9 @@ def plot_images(images, titles):
         axes = axes.reshape(1, -1)
 
     for i in range(num_images):
-        axes[i // cols, i % cols].imshow(images[i], cmap='gray')
+        axes[i // cols, i % cols].imshow(images[i], cmap="gray")
         axes[i // cols, i % cols].set_title(titles[i])
-        axes[i // cols, i % cols].axis('off')
+        axes[i // cols, i % cols].axis("off")
 
     plt.tight_layout()
     plt.show()
@@ -38,7 +39,7 @@ def save_images(curr_img_index, images, titles):
     if not os.path.exists(full_path):
         os.makedirs(full_path)
 
-    for image, title in zip(images, titles): 
+    for image, title in zip(images, titles):
         updated_title = title.replace(" ", "_").lower() + ".jpg"
         img_path = os.path.join(full_path, updated_title)
         cv2.imwrite(img_path, image)
@@ -48,9 +49,9 @@ def save_lp_text(curr_img_index, lp_text):
     full_path = os.path.join(RESULT_IMAGE_PATH, f"img-{curr_img_index}")
     if not os.path.exists(full_path):
         os.makedirs(full_path)
-    
+
     file_path = os.path.join(full_path, "license_plate_result.txt")
-    with open(file_path, 'w') as file:
+    with open(file_path, "w") as file:
         file.write(lp_text)
 
 
@@ -82,7 +83,9 @@ if __name__ == "__main__":
         titles.append("Original Cropped Image")
 
         # Transform image
-        transformed_image = lpmodel.transform_license_plate(image=bounding_box_data["cropped_img"], rectangle=border_rect, corners=border_edges)
+        transformed_image = lpmodel.transform_license_plate(
+            image=bounding_box_data["cropped_img"], rectangle=border_rect, corners=border_edges
+        )
         images.append(transformed_image)
         titles.append("Transformed Image")
 
