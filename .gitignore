@@ -1,9 +1,10 @@
 # Pycharm
 .idea
-.venv
-.venv/
 
-# PYthon/Jupyter
+# Virtual environment
+.venv
+
+# Python/Jupyter
 __pycache__
 .ipynb_checkpoints
 
