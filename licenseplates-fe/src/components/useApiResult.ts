@@ -40,7 +40,7 @@ const useApiResult = () => {
   const fetchBb = async () => {
     setBbFetching(true)
 
-    const img = await fetchImg('http://localhost:8000/api/bounding-box')
+    const img = await fetchImg('http://localhost:8000/api/plot-bounding-box')
     const blob = await img?.blob()
     if (blob) {
       const url = URL.createObjectURL(blob)
@@ -67,7 +67,7 @@ const useApiResult = () => {
   const fetchHom= async () => {
     setHomFetching(true)
 
-    const img = await fetchImg('http://localhost:8000/api/transform-hom')
+    const img = await fetchImg('http://localhost:8000/api/transform')
     const blob = await img?.blob()
     if (blob) {
       const url = URL.createObjectURL(blob)
@@ -80,7 +80,7 @@ const useApiResult = () => {
   const fetchText = async () => {
     setTextFetching(true)
 
-    const img = await fetchImg('http://localhost:8000/api/ocr')
+    const img = await fetchImg('http://localhost:8000/api/read-text')
     const blob = await img?.blob()
     if (blob) {
       const url = URL.createObjectURL(blob)

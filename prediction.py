@@ -4,12 +4,14 @@ import os
 import cv2
 from matplotlib import pyplot as plt
 
-from licenseplates.model import lpmodel
+from licenseplates.model import boundingbox, lpmodel, ocr, transformation
 
 EXAMPLE_IMAGE_PATH = "License-Plates-5/test/images"
 RESULT_IMAGE_PATH = "License-Plates-5/output"
 SAVE_INFO = False
 PLOT_GRAPHS = True
+
+# TODO: maybe cleanup this script
 
 
 def plot_images(images, titles):
@@ -68,7 +70,7 @@ if __name__ == "__main__":
         test_image = cv2.imread(img_path)
 
         # Predict bounding box
-        bounding_box_data = lpmodel.predict_bounding_box(image=test_image, model=lpmodel.load_model())
+        bounding_box_data = boundingbox.predict_bounding_box(image=test_image)
         x1, y1, x2, y2 = bounding_box_data["bb"]
         bb_image = test_image.copy()
         cv2.rectangle(bb_image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 1)
@@ -76,21 +78,21 @@ if __name__ == "__main__":
         titles.append("Original Image w Bounding Box")
 
         # Detect borders
-        border_edges, border_rect = lpmodel.detect_borders(bounding_box_data)
+        border_edges, border_rect = transformation.detect_borders(bounding_box_data["cropped_img"])
         border_image = bounding_box_data["cropped_img"].copy()
         cv2.drawContours(border_image, [border_edges], 0, (0, 255, 0), 2)
         images.append(border_image)
         titles.append("Original Cropped Image")
 
         # Transform image
-        transformed_image = lpmodel.transform_license_plate(
+        transformed_image = transformation.transform_license_plate(
             image=bounding_box_data["cropped_img"], rectangle=border_rect, corners=border_edges
         )
         images.append(transformed_image)
         titles.append("Transformed Image")
 
         # Read license plate
-        lp_result, add_images, add_titles = lpmodel.read_license_plate(image=transformed_image)
+        lp_result, add_images, add_titles = ocr.read_license_plate(image=transformed_image)
         print(lp_result[0][1])
 
         images = images + add_images

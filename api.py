@@ -4,7 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 from licenseplates.api import router
 from licenseplates.model import lpmodel
 
-lpmodel.get_model()
+lpmodel.init_modules()
 
 app = FastAPI()
 
