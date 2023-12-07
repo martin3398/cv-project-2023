@@ -14,7 +14,6 @@ services:
       - NODE_ENV=development
 
   backend:
-    # TODO: create image
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
     container_name: backend
     working_dir: /usr/src/app
