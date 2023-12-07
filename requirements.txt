@@ -4,6 +4,7 @@ opencv-python
 ultralytics
 pytesseract
 easyocr
+matplotlib
 
 # Dev Requirements
 isort
