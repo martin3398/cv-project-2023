@@ -5,17 +5,21 @@ const useApiResult = () => {
   const [bbImage, setBbImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [transformedImage, setTransformedImage] = useState<string | null>(null);
+  const [preprocessingImage, setPreprocessingImage] = useState<string | null>(null);
   const [text, setText] = useState<string | null>(null);
 
   const [bbFetching, setBbFetching] = useState<boolean>(false);
   const [croppedFetching, setCroppedFetching] = useState<boolean>(false);
   const [transformedFetching, setTransformedFetching] = useState<boolean>(false);
+  const [preprocessingFetching, setPreprocessingFetching] = useState<boolean>(false);
   const [textFetching, setTextFetching] = useState<boolean>(false);
 
   const setImage = (image: string) => {
     setImg(image);
     setBbImage(null);
+    setCroppedImage(null);
     setTransformedImage(null);
+    setPreprocessingImage(null);
     setText(null);
   };
 
@@ -77,6 +81,19 @@ const useApiResult = () => {
     setTransformedFetching(false);
   };
 
+  const fetchPreprocessing = async () => {
+    setPreprocessingFetching(true);
+
+    const img = await fetchImg('http://localhost:8000/api/preprocessing-steps');
+    const blob = await img?.blob();
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      setPreprocessingImage(url ?? null);
+    }
+
+    setPreprocessingFetching(false);
+  };
+
   const fetchText = async () => {
     setTextFetching(true);
 
@@ -99,6 +116,9 @@ const useApiResult = () => {
     transformedImage,
     transformedFetching,
     fetchTransformed,
+    preprocessingImage,
+    preprocessingFetching,
+    fetchPreprocessing,
     text,
     textFetching,
     fetchText,

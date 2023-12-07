@@ -20,6 +20,9 @@ function App() {
     transformedImage,
     transformedFetching,
     fetchTransformed,
+    preprocessingImage,
+    preprocessingFetching,
+    fetchPreprocessing,
     text,
     textFetching,
     fetchText,
@@ -36,6 +39,7 @@ function App() {
       await fetchBb();
       await fetchCropped();
       await fetchTransformed();
+      await fetchPreprocessing();
       await fetchText();
     } catch (e) {
       console.log(e);
@@ -72,6 +76,12 @@ function App() {
             <div>
               <br />
               <TextCard text={text} title={'License Plate Text'} />
+            </div>
+          )}
+          {preprocessingImage && (
+            <div>
+              <br />
+              <ResultCard image={preprocessingImage} title={'Preprocessing Steps'} />
             </div>
           )}
           {transformedImage && (
@@ -126,13 +136,26 @@ function App() {
               </Button>
             </Col>
             <Col xs="auto">
+              <Button disabled={!img || preprocessingFetching} onClick={() => fetchPreprocessing()}>
+                Preprocess for OCR
+              </Button>
+            </Col>
+            <Col xs="auto">
               <Button disabled={!img || textFetching} onClick={() => fetchText()}>
                 OCR Detection
               </Button>
             </Col>
             <Col xs="auto">
               <Button
-                disabled={!img || bbFetching || croppedFetching || transformedFetching || textFetching}
+                disabled={
+                  !img ||
+                  bbFetching ||
+                  croppedFetching ||
+                  transformedFetching ||
+                  preprocessingFetching ||
+                  textFetching ||
+                  allFetching
+                }
                 onClick={() => fetchAll()}
               >
                 All
