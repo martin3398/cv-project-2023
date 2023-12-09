@@ -1,8 +1,6 @@
 import cv2
 import numpy as np
 
-# TODO: refactor
-
 
 def detect_borders(cropped_img):
     gray_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
