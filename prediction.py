@@ -58,14 +58,14 @@ def save_lp_text(curr_img_index, lp_text):
 if __name__ == "__main__":
     test_img_paths = glob.glob(os.path.join(EXAMPLE_IMAGE_PATH, "*.jpg"))
 
-    images = []
-    titles = []
-
     lower_bound = 32
     upper_bound = lower_bound + 1
     for idx, img_path in enumerate(test_img_paths[lower_bound:upper_bound]):
         print("Index of current image: ", lower_bound + idx)
         test_image = cv2.imread(img_path)
+
+        images = []
+        titles = []
 
         # Predict bounding box
         bounding_box_data = boundingbox.predict_bounding_box(image=test_image)
